@@ -1,0 +1,230 @@
+{
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-11-01T09:26:06.699894Z",
+  "random_seed": 20261022,
+  "scale_profile": "starter",
+  "total_entities": 11,
+  "total_records": 40034,
+  "tables": {
+    "SKU": {
+      "row_count": 50,
+      "column_count": 10,
+      "columns": [
+        "sku_id",
+        "sku_name",
+        "category",
+        "unit_cost",
+        "unit_price",
+        "unit_volume_m3",
+        "unit_weight_kg",
+        "status",
+        "launch_date",
+        "discontinue_date"
+      ],
+      "sha256_checksum": "6206a76d856d92de20d0209f6c89964d1a8afbdbe26aaf0b549517c1e7cbb4eb",
+      "memory_usage_bytes": 19174
+    },
+    "Store": {
+      "row_count": 5,
+      "column_count": 8,
+      "columns": [
+        "store_id",
+        "store_name",
+        "channel",
+        "region",
+        "max_storage_units",
+        "max_storage_volume_m3",
+        "replenishment_cadence_days",
+        "opened_date"
+      ],
+      "sha256_checksum": "6c1fc8313095cefe2070e1926f35ddcccaf8de7ee0d100e0840662f2f3bb1956",
+      "memory_usage_bytes": 2066
+    },
+    "Supplier": {
+      "row_count": 10,
+      "column_count": 6,
+      "columns": [
+        "supplier_id",
+        "supplier_name",
+        "tier",
+        "reliability_score",
+        "payment_terms_days",
+        "country"
+      ],
+      "sha256_checksum": "b287f2ad874787e88646644d6ea134d7e65e002017cc157491dba4cfe172fb4f",
+      "memory_usage_bytes": 2932
+    },
+    "SupplierSKU": {
+      "row_count": 61,
+      "column_count": 11,
+      "columns": [
+        "supplier_sku_id",
+        "supplier_id",
+        "sku_id",
+        "pack_size",
+        "moq_units",
+        "unit_purchase_cost",
+        "nominal_lead_time_days",
+        "lead_time_std_days",
+        "is_primary",
+        "effective_from",
+        "effective_to"
+      ],
+      "sha256_checksum": "89b83a073fc698664731376adeac3ed0e535929d64a0989c53922b93075f3af1",
+      "memory_usage_bytes": 20811
+    },
+    "SalesHistory": {
+      "row_count": 18775,
+      "column_count": 13,
+      "columns": [
+        "sale_id",
+        "store_id",
+        "sku_id",
+        "date",
+        "units_sold",
+        "promotion_flag",
+        "promo_discount_pct",
+        "stockout_flag",
+        "unconstrained_demand_est",
+        "lost_sales_units",
+        "unit_selling_price",
+        "gross_revenue",
+        "naive_censored_demand"
+      ],
+      "sha256_checksum": "5871df79ca6888600948f217a8025f789d9a616809be38f059e97e06588df357",
+      "memory_usage_bytes": 6102007
+    },
+    "InventorySnapshot": {
+      "row_count": 18775,
+      "column_count": 13,
+      "columns": [
+        "snapshot_id",
+        "store_id",
+        "sku_id",
+        "date",
+        "opening_on_hand_qty",
+        "received_qty",
+        "units_sold",
+        "closing_on_hand_qty",
+        "on_order_qty",
+        "reserved_qty",
+        "available_qty",
+        "stockout_flag",
+        "days_of_supply"
+      ],
+      "sha256_checksum": "6bce8a2505bfa5caa446138a8aab3367dac9f5f7266da54c99c6031116e4b264",
+      "memory_usage_bytes": 6214657
+    },
+    "LeadTimeObservation": {
+      "row_count": 1702,
+      "column_count": 12,
+      "columns": [
+        "observation_id",
+        "po_id",
+        "supplier_id",
+        "sku_id",
+        "order_date",
+        "expected_delivery_date",
+        "actual_delivery_date",
+        "nominal_lead_time_days",
+        "actual_lead_time_days",
+        "lead_time_variance_days",
+        "status",
+        "delay_reason"
+      ],
+      "sha256_checksum": "d43b06b2d09bde1dc18f908f6fa2e61031138c9c68e53dd0289e71fa9f5ea975",
+      "memory_usage_bytes": 976619
+    },
+    "Forecast": {
+      "row_count": 250,
+      "column_count": 14,
+      "columns": [
+        "forecast_id",
+        "store_id",
+        "sku_id",
+        "forecast_date",
+        "horizon_start_date",
+        "horizon_end_date",
+        "horizon_days",
+        "forecasted_daily_demand",
+        "forecasted_daily_std",
+        "forecasted_total_horizon_demand",
+        "method",
+        "promo_uplift_factor",
+        "stockout_uncensored",
+        "created_at"
+      ],
+      "sha256_checksum": "629aacd11b9b05fb2143f6dc670d3d5afb8bea6beef036021d67663c92f9111d",
+      "memory_usage_bytes": 138194
+    },
+    "ReorderPolicy": {
+      "row_count": 250,
+      "column_count": 13,
+      "columns": [
+        "policy_id",
+        "store_id",
+        "sku_id",
+        "service_level",
+        "z_factor",
+        "effective_lead_time_days",
+        "lead_time_demand",
+        "safety_stock_units",
+        "reorder_point_units",
+        "target_stock_level",
+        "review_period_days",
+        "max_store_capacity_units",
+        "last_updated"
+      ],
+      "sha256_checksum": "fda627c7d6036bed0406b7591b15d576aa76a3be75a8cb0a6d2a115b3949c6ea",
+      "memory_usage_bytes": 81632
+    },
+    "PurchaseRecommendation": {
+      "row_count": 52,
+      "column_count": 24,
+      "columns": [
+        "recommendation_id",
+        "store_id",
+        "sku_id",
+        "supplier_id",
+        "recommendation_date",
+        "current_on_hand_qty",
+        "current_on_order_qty",
+        "current_reserved_qty",
+        "net_inventory_position",
+        "reorder_point",
+        "target_stock_level",
+        "gross_need_units",
+        "unrounded_order_qty",
+        "pack_size_applied",
+        "moq_applied",
+        "capacity_constrained_qty",
+        "final_order_qty",
+        "unit_cost",
+        "total_cost",
+        "priority",
+        "status",
+        "exception_code",
+        "rationale",
+        "created_at"
+      ],
+      "sha256_checksum": "ef34078626702c3b0c25f395c8a31f8353054133f0749e8af24514d94d519857",
+      "memory_usage_bytes": 42196
+    },
+    "OrderLifecycleEvent": {
+      "row_count": 104,
+      "column_count": 8,
+      "columns": [
+        "event_id",
+        "recommendation_id",
+        "from_status",
+        "to_status",
+        "actor",
+        "action",
+        "notes",
+        "timestamp"
+      ],
+      "sha256_checksum": "20f05db5d5f19b6d7198e5c224d9dceb11f12c563c3379932055c3f671c795c6",
+      "memory_usage_bytes": 55456
+    }
+  }
+}

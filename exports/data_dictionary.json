@@ -1,0 +1,1561 @@
+{
+  "SKU": {
+    "entity_name": "SKU",
+    "table_name": "skus",
+    "cardinality_notes": "1:N with SalesHistory, InventorySnapshot, SupplierSKU, Forecast, ReorderPolicy, PurchaseRecommendation",
+    "lifecycle_states": [
+      "ACTIVE",
+      "PHASE_OUT",
+      "DISCONTINUED"
+    ],
+    "fields": [
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Must match SKU-XXXXXX and be unique",
+        "description": "Primary key for Stock Keeping Unit"
+      },
+      {
+        "name": "sku_name",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Any non-empty string",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Length between 3 and 100 characters",
+        "description": "Human-readable merchandise title"
+      },
+      {
+        "name": "category",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Beverages, Dairy, Bakery, Pantry, Produce, Frozen, Personal Care, Household",
+        "units": "Category",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be valid department enum",
+        "description": "Product merchandise category"
+      },
+      {
+        "name": "unit_cost",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.01",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive decimal, unit_cost < unit_price",
+        "description": "Standard baseline unit procurement cost"
+      },
+      {
+        "name": "unit_price",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.02",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive decimal, unit_price > unit_cost",
+        "description": "Retail shelf/listing price"
+      },
+      {
+        "name": "unit_volume_m3",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0001",
+        "units": "Cubic Meters (m3)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive decimal",
+        "description": "Physical storage volume per unit"
+      },
+      {
+        "name": "unit_weight_kg",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.01",
+        "units": "Kilograms (kg)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive decimal",
+        "description": "Physical weight per unit"
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ACTIVE, PHASE_OUT, DISCONTINUED",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match valid lifecycle enum",
+        "description": "Current product lifecycle phase"
+      },
+      {
+        "name": "launch_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date <= discontinue_date",
+        "description": "Date product introduced to inventory"
+      },
+      {
+        "name": "discontinue_date",
+        "data_type": "date",
+        "required": false,
+        "allowed_values": "YYYY-MM-DD or NULL",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "ISO date > launch_date if present",
+        "description": "Date product was retired if discontinued"
+      }
+    ]
+  },
+  "Store": {
+    "entity_name": "Store",
+    "table_name": "stores",
+    "cardinality_notes": "1:N with SalesHistory, InventorySnapshot, Forecast, ReorderPolicy, PurchaseRecommendation",
+    "lifecycle_states": [
+      "ACTIVE",
+      "RENOVATING",
+      "CLOSED"
+    ],
+    "fields": [
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Must match STORE-XXXXXX and be unique",
+        "description": "Primary key for retail store/facility"
+      },
+      {
+        "name": "store_name",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Any non-empty string",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Length between 3 and 100 characters",
+        "description": "Facility name/location"
+      },
+      {
+        "name": "channel",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "RETAIL_SUPERMARKET, CONVENIENCE, ECOMM_HUB, REGIONAL_DC",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match channel enum",
+        "description": "Fulfillment channel and operating model"
+      },
+      {
+        "name": "region",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "North, South, East, West, Central",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match region enum",
+        "description": "Geographic operating market"
+      },
+      {
+        "name": "max_storage_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "1000 - 1000000",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer >= 1000",
+        "description": "Maximum unit capacity threshold of store backroom/shelves"
+      },
+      {
+        "name": "max_storage_volume_m3",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 50.0",
+        "units": "Cubic Meters (m3)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive float",
+        "description": "Maximum physical backroom volume capacity"
+      },
+      {
+        "name": "replenishment_cadence_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "1, 2, 7",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "In [1, 2, 7]",
+        "description": "Review interval frequency for ordering"
+      },
+      {
+        "name": "opened_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Date facility opened for operations"
+      }
+    ]
+  },
+  "Supplier": {
+    "entity_name": "Supplier",
+    "table_name": "suppliers",
+    "cardinality_notes": "1:N with SupplierSKU, LeadTimeObservation, PurchaseRecommendation",
+    "lifecycle_states": [
+      "ACTIVE",
+      "ON_PROBATION",
+      "SUSPENDED"
+    ],
+    "fields": [
+      {
+        "name": "supplier_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SUPP-[0-9]{4}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Must match SUPP-XXXX and be unique",
+        "description": "Primary key for external vendor"
+      },
+      {
+        "name": "supplier_name",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Any non-empty string",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Length between 3 and 100 characters",
+        "description": "Legal commercial vendor name"
+      },
+      {
+        "name": "tier",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "TIER_1, TIER_2, TIER_3",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match tier enum",
+        "description": "Strategic vendor classification tier"
+      },
+      {
+        "name": "reliability_score",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": "0.50 - 1.00",
+        "units": "Score",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "0.0 <= score <= 1.0",
+        "description": "Historical On-Time In-Full fulfillment index"
+      },
+      {
+        "name": "payment_terms_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "15, 30, 45, 60, 90",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer",
+        "description": "Standard commercial credit terms"
+      },
+      {
+        "name": "country",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ISO-3166-1 alpha-2 or standard name",
+        "units": "Country",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid 2-letter country code",
+        "description": "Supplier headquarters country"
+      }
+    ]
+  },
+  "SupplierSKU": {
+    "entity_name": "SupplierSKU",
+    "table_name": "supplier_skus",
+    "cardinality_notes": "N:M Bridge table between Supplier (1:N) and SKU (1:N). 1:N with LeadTimeObservation",
+    "lifecycle_states": [
+      "ACTIVE",
+      "INACTIVE"
+    ],
+    "fields": [
+      {
+        "name": "supplier_sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SSKU-SUPP-[0-9]{4}-SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique compound bridge ID",
+        "description": "Primary key for vendor-SKU contract relation"
+      },
+      {
+        "name": "supplier_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SUPP-[0-9]{4}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Supplier.supplier_id",
+        "validation_rule": "Must reference existing Supplier",
+        "description": "Foreign key to vendor entity"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must reference existing SKU",
+        "description": "Foreign key to SKU entity"
+      },
+      {
+        "name": "pack_size",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "1, 6, 12, 24, 48, 96",
+        "units": "Units/Pack",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer >= 1",
+        "description": "Master carton case pack multiple"
+      },
+      {
+        "name": "moq_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= pack_size",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be positive integer and multiple of pack_size",
+        "description": "Minimum order quantity in units"
+      },
+      {
+        "name": "unit_purchase_cost",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.01",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be positive decimal",
+        "description": "Negotiated contract unit procurement cost"
+      },
+      {
+        "name": "nominal_lead_time_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "1 - 60",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer >= 1",
+        "description": "Expected supplier order fulfillment duration"
+      },
+      {
+        "name": "lead_time_std_days",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": "0.1 - 10.0",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative float",
+        "description": "Standard deviation of delivery lead times"
+      },
+      {
+        "name": "is_primary",
+        "data_type": "boolean",
+        "required": true,
+        "allowed_values": "True, False",
+        "units": "Boolean",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Exactly one primary supplier per SKU",
+        "description": "Indicator for primary source of supply"
+      },
+      {
+        "name": "effective_from",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Contract start validity date"
+      },
+      {
+        "name": "effective_to",
+        "data_type": "date",
+        "required": false,
+        "allowed_values": "YYYY-MM-DD or NULL",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "ISO date >= effective_from if present",
+        "description": "Contract expiration validity date"
+      }
+    ]
+  },
+  "SalesHistory": {
+    "entity_name": "SalesHistory",
+    "table_name": "sales_history",
+    "cardinality_notes": "N:1 with Store, N:1 with SKU. Daily transactions / demand log",
+    "lifecycle_states": null,
+    "fields": [
+      {
+        "name": "sale_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "SALE-<store-id>-<sku-id>-<date>",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique composite key format SALE-STORE-XXXXXX-SKU-XXXXXX-YYYY-MM-DD",
+        "description": "Primary transaction record key"
+      },
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Store.store_id",
+        "validation_rule": "Must exist in Store",
+        "description": "Foreign key to Store"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to SKU"
+      },
+      {
+        "name": "date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date within observation window",
+        "description": "Transaction calendar date"
+      },
+      {
+        "name": "units_sold",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Integer >= 0. Must be 0 if stockout occurred at day start",
+        "description": "Actual recorded physical sales transactions"
+      },
+      {
+        "name": "promotion_flag",
+        "data_type": "boolean",
+        "required": true,
+        "allowed_values": "True, False",
+        "units": "Boolean",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Boolean indicator",
+        "description": "Whether promotional event/flyer was active"
+      },
+      {
+        "name": "promo_discount_pct",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": "0.00 - 0.50",
+        "units": "Percentage",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "0.0 if promotion_flag is False, > 0 if True",
+        "description": "Promotional price discount fraction"
+      },
+      {
+        "name": "stockout_flag",
+        "data_type": "boolean",
+        "required": true,
+        "allowed_values": "True, False",
+        "units": "Boolean",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Boolean indicator",
+        "description": "True if zero on-hand prevented full demand fulfillment"
+      },
+      {
+        "name": "unconstrained_demand_est",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= units_sold",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be >= units_sold",
+        "description": "True unconstrained demand before inventory censoring"
+      },
+      {
+        "name": "lost_sales_units",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals unconstrained_demand_est - units_sold",
+        "description": "Sales lost due to stockout censoring"
+      },
+      {
+        "name": "unit_selling_price",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.01",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive float",
+        "description": "Actual price charged per unit after discount"
+      },
+      {
+        "name": "gross_revenue",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals units_sold * unit_selling_price",
+        "description": "Total gross transaction sales revenue"
+      }
+    ]
+  },
+  "InventorySnapshot": {
+    "entity_name": "InventorySnapshot",
+    "table_name": "inventory_snapshots",
+    "cardinality_notes": "N:1 with Store, N:1 with SKU. Daily end-of-day stock positions",
+    "lifecycle_states": null,
+    "fields": [
+      {
+        "name": "snapshot_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "INV-<store-id>-<sku-id>-<date>",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique composite key format INV-STORE-XXXXXX-SKU-XXXXXX-YYYY-MM-DD",
+        "description": "Primary daily snapshot record key"
+      },
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Store.store_id",
+        "validation_rule": "Must exist in Store",
+        "description": "Foreign key to Store"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to SKU"
+      },
+      {
+        "name": "date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Snapshot calendar date"
+      },
+      {
+        "name": "opening_on_hand_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative integer",
+        "description": "Stock on shelf/backroom at day start"
+      },
+      {
+        "name": "received_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative integer",
+        "description": "Stock delivered from POs during day"
+      },
+      {
+        "name": "units_sold",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match SalesHistory.units_sold",
+        "description": "Stock depleted through sales"
+      },
+      {
+        "name": "closing_on_hand_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals opening + received - units_sold",
+        "description": "End of day physical stock on hand"
+      },
+      {
+        "name": "on_order_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative integer",
+        "description": "Stock in transit or committed on open purchase orders"
+      },
+      {
+        "name": "reserved_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative integer <= closing_on_hand_qty",
+        "description": "Stock allocated to pending customer click-and-collect"
+      },
+      {
+        "name": "available_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals closing_on_hand + on_order - reserved",
+        "description": "Effective net available stock position"
+      },
+      {
+        "name": "stockout_flag",
+        "data_type": "boolean",
+        "required": true,
+        "allowed_values": "True, False",
+        "units": "Boolean",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "True if closing_on_hand_qty == 0",
+        "description": "Binary indicator of zero stockout state"
+      },
+      {
+        "name": "days_of_supply",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "available_qty / max(daily_demand, 0.01)",
+        "description": "Runway of stock based on average daily velocity"
+      }
+    ]
+  },
+  "LeadTimeObservation": {
+    "entity_name": "LeadTimeObservation",
+    "table_name": "lead_time_observations",
+    "cardinality_notes": "N:1 with Supplier, N:1 with SKU, N:1 with SupplierSKU. Historical PO lead-time receipts",
+    "lifecycle_states": [
+      "ON_TIME",
+      "DELAYED",
+      "EARLY",
+      "CANCELLED"
+    ],
+    "fields": [
+      {
+        "name": "observation_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: LTO-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique zero-padded sequential ID",
+        "description": "Primary key for lead time fulfillment event"
+      },
+      {
+        "name": "po_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: PO-[0-9]{4}-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "PurchaseRecommendation.recommendation_id",
+        "validation_rule": "References originating purchase order",
+        "description": "Foreign key to purchase order"
+      },
+      {
+        "name": "supplier_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SUPP-[0-9]{4}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Supplier.supplier_id",
+        "validation_rule": "Must exist in Supplier",
+        "description": "Foreign key to vendor"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to SKU"
+      },
+      {
+        "name": "order_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Date PO was dispatched to vendor"
+      },
+      {
+        "name": "expected_delivery_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be >= order_date",
+        "description": "Promised contract delivery arrival date"
+      },
+      {
+        "name": "actual_delivery_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be >= order_date (unless flagged anomalous)",
+        "description": "Actual dock receipt date"
+      },
+      {
+        "name": "nominal_lead_time_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 1",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer",
+        "description": "Contracted nominal lead time"
+      },
+      {
+        "name": "actual_lead_time_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "Any integer",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "actual_delivery_date - order_date; >= 0 for valid rows",
+        "description": "Empirical fulfillment days elapsed"
+      },
+      {
+        "name": "lead_time_variance_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "Any integer",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "actual_lead_time_days - nominal_lead_time_days",
+        "description": "Lateness vs nominal expectation"
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ON_TIME, DELAYED, EARLY, CANCELLED",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match fulfillment status enum",
+        "description": "Receipt punctuality classification"
+      },
+      {
+        "name": "delay_reason",
+        "data_type": "string",
+        "required": false,
+        "allowed_values": "PORT_CONGESTION, FACTORY_DELAY, CARRIER_BREAKDOWN, WEATHER, NONE",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Optional text explanation",
+        "description": "Root cause of fulfillment variance"
+      }
+    ]
+  },
+  "Forecast": {
+    "entity_name": "Forecast",
+    "table_name": "forecasts",
+    "cardinality_notes": "N:1 with Store, N:1 with SKU. Statistical demand projections per SKU-store",
+    "lifecycle_states": null,
+    "fields": [
+      {
+        "name": "forecast_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: FC-<store-id>-<sku-id>-<date>",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique composite key format FC-STORE-XXXXXX-SKU-XXXXXX-YYYY-MM-DD",
+        "description": "Primary demand forecast projection key"
+      },
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Store.store_id",
+        "validation_rule": "Must exist in Store",
+        "description": "Foreign key to Store"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to SKU"
+      },
+      {
+        "name": "forecast_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date as-of forecast run",
+        "description": "Date prediction was generated"
+      },
+      {
+        "name": "horizon_start_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be >= forecast_date",
+        "description": "First day of prediction interval"
+      },
+      {
+        "name": "horizon_end_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be > horizon_start_date",
+        "description": "Last day of prediction interval"
+      },
+      {
+        "name": "horizon_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "7, 14, 30",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer",
+        "description": "Forecast lookahead horizon duration"
+      },
+      {
+        "name": "forecasted_daily_demand",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Units/Day",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative float",
+        "description": "Estimated mean daily unit velocity"
+      },
+      {
+        "name": "forecasted_daily_std",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Units/Day",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Non-negative float",
+        "description": "Estimated standard deviation of daily demand"
+      },
+      {
+        "name": "forecasted_total_horizon_demand",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals forecasted_daily_demand * horizon_days",
+        "description": "Integrated demand over entire horizon"
+      },
+      {
+        "name": "method",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "HOLT_WINTERS, CROSTON_INTERMITTENT, EXPONENTIAL_SMOOTHING, UNCENSORED_MOVING_AVERAGE",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match forecasting model enum",
+        "description": "Statistical model used to generate estimate"
+      },
+      {
+        "name": "promo_uplift_factor",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 1.0",
+        "units": "Multiplier",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Float >= 1.0",
+        "description": "Anticipated lift factor for planned promotions"
+      },
+      {
+        "name": "stockout_uncensored",
+        "data_type": "boolean",
+        "required": true,
+        "allowed_values": "True, False",
+        "units": "Boolean",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Boolean indicator",
+        "description": "Whether lost sales imputation was applied to training data"
+      },
+      {
+        "name": "created_at",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ISO-8601 Timestamp",
+        "units": "Timestamp",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO-8601 timestamp",
+        "description": "System timestamp when forecast was written"
+      }
+    ]
+  },
+  "ReorderPolicy": {
+    "entity_name": "ReorderPolicy",
+    "table_name": "reorder_policies",
+    "cardinality_notes": "1:1 per SKU-Store active horizon. Governs replenishment triggers",
+    "lifecycle_states": [
+      "ACTIVE",
+      "REVISED",
+      "DEPRECATED"
+    ],
+    "fields": [
+      {
+        "name": "policy_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: RP-<store-id>-<sku-id>",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique compound key format RP-STORE-XXXXXX-SKU-XXXXXX",
+        "description": "Primary reorder parameterization key"
+      },
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Store.store_id",
+        "validation_rule": "Must exist in Store",
+        "description": "Foreign key to Store"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to SKU"
+      },
+      {
+        "name": "service_level",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": "0.85 - 0.999",
+        "units": "Ratio",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Float between 0.80 and 0.999",
+        "description": "Target cycle service level probability (1 - Stockout Risk)"
+      },
+      {
+        "name": "z_factor",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": "1.28 - 3.09",
+        "units": "Standard Score",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Inverse standard normal CDF of service_level",
+        "description": "Safety stock statistical multiplier"
+      },
+      {
+        "name": "effective_lead_time_days",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 1.0",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive float",
+        "description": "Mean supplier replenishment lead time"
+      },
+      {
+        "name": "lead_time_demand",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals daily_demand * lead_time",
+        "description": "Expected mean sales during fulfillment window"
+      },
+      {
+        "name": "safety_stock_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Z * sqrt(L * std_d^2 + d^2 * std_L^2)",
+        "description": "Buffer stock protecting against demand & lead time variance"
+      },
+      {
+        "name": "reorder_point_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= safety_stock_units",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals lead_time_demand + safety_stock_units",
+        "description": "Inventory position threshold triggering replenishment order"
+      },
+      {
+        "name": "target_stock_level",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= reorder_point_units",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Equals ROP + (ReviewPeriod * daily_demand)",
+        "description": "Order-up-to stock target ceiling"
+      },
+      {
+        "name": "review_period_days",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "1 - 14",
+        "units": "Days",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer",
+        "description": "Frequency of replenishment review in days"
+      },
+      {
+        "name": "max_store_capacity_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 10",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Positive integer",
+        "description": "Hard shelf/backroom allocation ceiling for this SKU-store"
+      },
+      {
+        "name": "last_updated",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Date policy parameters were recalculated"
+      }
+    ]
+  },
+  "PurchaseRecommendation": {
+    "entity_name": "PurchaseRecommendation",
+    "table_name": "purchase_recommendations",
+    "cardinality_notes": "N:1 with Store, N:1 with SKU, N:1 with Supplier. 1:N with OrderLifecycleEvent",
+    "lifecycle_states": [
+      "RECOMMENDED",
+      "APPROVED",
+      "REJECTED",
+      "EXCEPTION_FLAGGED",
+      "ORDERED"
+    ],
+    "fields": [
+      {
+        "name": "recommendation_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: PO-[0-9]{4}-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique sequential key format PO-YYYY-XXXXXX",
+        "description": "Primary replenishment recommendation key"
+      },
+      {
+        "name": "store_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: STORE-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Store.store_id",
+        "validation_rule": "Must exist in Store",
+        "description": "Foreign key to destination facility"
+      },
+      {
+        "name": "sku_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SKU-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "SKU.sku_id",
+        "validation_rule": "Must exist in SKU",
+        "description": "Foreign key to replenishing item"
+      },
+      {
+        "name": "supplier_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: SUPP-[0-9]{4}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "Supplier.supplier_id",
+        "validation_rule": "Must exist in Supplier",
+        "description": "Foreign key to vendor providing goods"
+      },
+      {
+        "name": "recommendation_date",
+        "data_type": "date",
+        "required": true,
+        "allowed_values": "YYYY-MM-DD",
+        "units": "Date",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO date",
+        "description": "Date recommendation was generated by engine"
+      },
+      {
+        "name": "current_on_hand_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Current physical stock",
+        "description": "On-hand inventory at recommendation time"
+      },
+      {
+        "name": "current_on_order_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Open pipeline stock",
+        "description": "Inventory already on order with supplier"
+      },
+      {
+        "name": "current_reserved_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Committed orders",
+        "description": "Inventory committed to pending fulfillments"
+      },
+      {
+        "name": "net_inventory_position",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": "Any integer",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "on_hand + on_order - reserved",
+        "description": "Effective net stock position"
+      },
+      {
+        "name": "reorder_point",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "From ReorderPolicy",
+        "description": "Trigger threshold for ordering"
+      },
+      {
+        "name": "target_stock_level",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= reorder_point",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "From ReorderPolicy",
+        "description": "Target order-up-to level"
+      },
+      {
+        "name": "gross_need_units",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "max(0, target_stock_level - net_inventory_position)",
+        "description": "Deficit needed to reach target stock level"
+      },
+      {
+        "name": "unrounded_order_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "max(gross_need, MOQ) if gross_need > 0 else 0",
+        "description": "Required order quantity before pack-size rounding"
+      },
+      {
+        "name": "pack_size_applied",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 1",
+        "units": "Units/Pack",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Contract supplier pack size",
+        "description": "Pack size multiple applied for rounding"
+      },
+      {
+        "name": "moq_applied",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Contract minimum order quantity",
+        "description": "Vendor MOQ applied"
+      },
+      {
+        "name": "capacity_constrained_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Order quantity respecting store storage limits",
+        "description": "Quantity capped by store backroom/shelf capacity"
+      },
+      {
+        "name": "final_order_qty",
+        "data_type": "integer",
+        "required": true,
+        "allowed_values": ">= 0",
+        "units": "Units",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must be multiple of pack_size and >= MOQ if ordered, unless exception",
+        "description": "Recommended final unit order quantity"
+      },
+      {
+        "name": "unit_cost",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.01",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Procurement unit contract cost",
+        "description": "Purchase cost per unit"
+      },
+      {
+        "name": "total_cost",
+        "data_type": "float",
+        "required": true,
+        "allowed_values": ">= 0.0",
+        "units": "USD ($)",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "final_order_qty * unit_cost",
+        "description": "Total financial commitment for this purchase recommendation"
+      },
+      {
+        "name": "priority",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "CRITICAL_STOCKOUT, HIGH_RISK, ROUTINE, SEASONAL_BUILD",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match priority enum",
+        "description": "Urgency level for operational review"
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "RECOMMENDED, APPROVED, REJECTED, EXCEPTION_FLAGGED, ORDERED",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match recommendation status enum",
+        "description": "Current state in approval lifecycle"
+      },
+      {
+        "name": "exception_code",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "NONE, ERR_DISCONTINUED_SKU, ERR_CAPACITY_EXCEEDED, ERR_PACK_SIZE_MISMATCH, ERR_NEGATIVE_LEAD_TIME, ERR_SUPPLIER_INACTIVE",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Must match exception enum",
+        "description": "Audit error code if rule condition violated"
+      },
+      {
+        "name": "rationale",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Any explanatory text",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Detailed transparent explanation",
+        "description": "Plain language operational justification and math trace"
+      },
+      {
+        "name": "created_at",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ISO-8601 Timestamp",
+        "units": "Timestamp",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO-8601 timestamp",
+        "description": "Record creation timestamp"
+      }
+    ]
+  },
+  "OrderLifecycleEvent": {
+    "entity_name": "OrderLifecycleEvent",
+    "table_name": "order_lifecycle_events",
+    "cardinality_notes": "N:1 with PurchaseRecommendation. Audit trail preserving state transitions",
+    "lifecycle_states": null,
+    "fields": [
+      {
+        "name": "event_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: EVT-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": true,
+        "foreign_key": null,
+        "validation_rule": "Unique sequential key format EVT-XXXXXX",
+        "description": "Primary key for event audit record"
+      },
+      {
+        "name": "recommendation_id",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Regex: PO-[0-9]{4}-[0-9]{6}",
+        "units": "ID",
+        "is_primary_key": false,
+        "foreign_key": "PurchaseRecommendation.recommendation_id",
+        "validation_rule": "Must exist in PurchaseRecommendation",
+        "description": "Foreign key to recommendation"
+      },
+      {
+        "name": "from_status",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Any status or NONE",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Prior state in lifecycle",
+        "description": "Previous recommendation state"
+      },
+      {
+        "name": "to_status",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "RECOMMENDED, APPROVED, REJECTED, EXCEPTION_FLAGGED, ORDERED",
+        "units": "Enum",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid recommendation lifecycle state",
+        "description": "New recommendation state"
+      },
+      {
+        "name": "actor",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "System/ReplenishmentEngine, StoreManager, MerchandisingAnalyst, OperationsManager",
+        "units": "Role",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Authorized user or system role",
+        "description": "Actor who triggered the state change"
+      },
+      {
+        "name": "action",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "GENERATE, APPROVE, OVERRIDE_QTY, REJECT, DISPATCH, ESCALATE",
+        "units": "Action",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Business action verb",
+        "description": "Action performed on recommendation"
+      },
+      {
+        "name": "notes",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "Audit text log",
+        "units": "Text",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Audit comments or system decision reasoning",
+        "description": "Explanatory remarks accompanying state transition"
+      },
+      {
+        "name": "timestamp",
+        "data_type": "string",
+        "required": true,
+        "allowed_values": "ISO-8601 Timestamp",
+        "units": "Timestamp",
+        "is_primary_key": false,
+        "foreign_key": null,
+        "validation_rule": "Valid ISO-8601 timestamp",
+        "description": "Wall clock timestamp of event occurrence"
+      }
+    ]
+  }
+}

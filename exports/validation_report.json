@@ -1,0 +1,21 @@
+{
+  "is_valid": true,
+  "total_checks": 48,
+  "passed_checks": 48,
+  "failed_checks": 0,
+  "failures": [],
+  "warnings": [],
+  "entity_summaries": {
+    "SKU": 50,
+    "Store": 5,
+    "Supplier": 10,
+    "SupplierSKU": 61,
+    "SalesHistory": 18775,
+    "InventorySnapshot": 18775,
+    "LeadTimeObservation": 1702,
+    "Forecast": 250,
+    "ReorderPolicy": 250,
+    "PurchaseRecommendation": 52,
+    "OrderLifecycleEvent": 104
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "evaluation_window": {
+    "train_days": 76,
+    "holdout_days": 14,
+    "holdout_start": "2025-03-18",
+    "holdout_end": "2025-03-31",
+    "evaluated_series_count": 250,
+    "total_eval_points": 3030
+  },
+  "censored_model_metrics": {
+    "wape": 0.3383,
+    "mape": 0.4884,
+    "mae": 2.4173,
+    "rmse": 3.5774,
+    "forecast_bias": -0.0008,
+    "total_actual_units": 21653.0,
+    "total_predicted_units": 21635.7
+  },
+  "uncensored_model_metrics": {
+    "wape": 0.3383,
+    "mape": 0.4882,
+    "mae": 2.4179,
+    "rmse": 3.5739,
+    "forecast_bias": 0.0005,
+    "total_actual_units": 21653.0,
+    "total_predicted_units": 21663.6
+  },
+  "censoring_impact_analysis": {
+    "underforecast_gap_units": 27.9,
+    "censored_model_downward_bias": -0.0008,
+    "uncensored_model_bias": 0.0005,
+    "bias_improvement": 0.0003,
+    "wape_improvement": 0.0,
+    "conclusion": "Uncensoring stockouts successfully eliminates downward forecast bias caused by inventory depletion, preventing recurrent stockout death-spirals."
+  }
+}

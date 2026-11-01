@@ -1,0 +1,6 @@
+store_id,store_name,channel,region,max_storage_units,max_storage_volume_m3,replenishment_cadence_days,opened_date
+STORE-000001,Central Retail Supermarket 001,RETAIL_SUPERMARKET,Central,26471,158.83,1,2022-11-29
+STORE-000002,East Regional Dc 002,REGIONAL_DC,East,125929,1007.43,1,2020-12-05
+STORE-000003,East Retail Supermarket 003,RETAIL_SUPERMARKET,East,30279,181.67,2,2023-07-13
+STORE-000004,East Retail Supermarket 004,RETAIL_SUPERMARKET,East,12380,74.28,1,2023-04-19
+STORE-000005,North Retail Supermarket 005,RETAIL_SUPERMARKET,North,10002,60.01,2,2023-04-26

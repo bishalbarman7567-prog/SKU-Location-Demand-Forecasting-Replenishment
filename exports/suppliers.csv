@@ -1,0 +1,11 @@
+supplier_id,supplier_name,tier,reliability_score,payment_terms_days,country
+SUPP-0001,Vendor Partner 001 (TIER_1),TIER_1,0.98,30,DE
+SUPP-0002,Vendor Partner 002 (TIER_2),TIER_2,0.92,60,CA
+SUPP-0003,Vendor Partner 003 (TIER_2),TIER_2,0.81,45,CA
+SUPP-0004,Vendor Partner 004 (TIER_2),TIER_2,0.87,30,US
+SUPP-0005,Vendor Partner 005 (TIER_2),TIER_2,0.83,60,MX
+SUPP-0006,Vendor Partner 006 (TIER_2),TIER_2,0.89,30,CA
+SUPP-0007,Vendor Partner 007 (TIER_2),TIER_2,0.74,45,US
+SUPP-0008,Vendor Partner 008 (TIER_3),TIER_3,0.86,30,VN
+SUPP-0009,Vendor Partner 009 (TIER_1),TIER_1,0.84,60,VN
+SUPP-0010,Vendor Partner 010 (TIER_1),TIER_1,0.92,45,US
